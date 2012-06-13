@@ -1,5 +1,5 @@
 #! /usr/bin/ruby -w
-# last-modified: 2012/05/24 23:40:30.
+# last-modified: 2012/06/13 17:00:21.
 
 # Nikon NEF ファイルの撮影日時をファイル名の先頭に付加する。
 
@@ -8,9 +8,14 @@ NEF_DIR_PREFIX = "#{ENV["HOME"]}/image/photo/undone"
 
 
 require "pp"
+require "rubygems"
+
+gem "filerenamer"
 require "filerenamer/filerenamer.rb"
 require "filerenamer/filerenameroptionparser.rb"
-require "imageutils/nefparser.rb"
+
+gem "imagut"
+require "imagut/nefparser.rb"
 
 op = FileRenamerOptionParser.new
 op.parse!(ARGV)

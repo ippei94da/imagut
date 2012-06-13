@@ -11,7 +11,9 @@ require "rubygems"
 gem "nokogiri"
 require "nokogiri"
 require "open-uri"
-require "imageutils/urllogger.rb"
+
+gem "imagut"
+require "imagut/urllogger.rb"
 
 def anchored_images(url)
   doc = Nokogiri::HTML(open(url))

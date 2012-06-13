@@ -1,0 +1,20 @@
+#! /usr/bin/ruby
+
+#IMAGEMAGIC_PATH = '/usr/local/bin/convert'
+IMAGEMAGIC_PATH = '/usr/bin/convert'
+TARGET_SIZE =     '"1200x960>"' # '>' means to shrink but not to expand.
+
+oldFileNameAry = ARGV
+
+oldFileNameAry.each do |oldFileName|
+  #extention = File.extname(oldFileName)
+  #p newFileName = oldFileName.sub(/#{extention}$/, "-s#{extention}")
+  newFileName = oldFileName
+
+  commandLine = IMAGEMAGIC_PATH + ' ' + oldFileName + ' -resize ' + TARGET_SIZE +
+    ' ' + newFileName
+  print commandLine + "\n"
+  system(commandLine)
+end
+
+print "\a"

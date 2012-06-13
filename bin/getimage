@@ -1,0 +1,67 @@
+#! /usr/bin/env ruby
+# coding: utf-8
+
+STORAGE_DIR = ENV["HOME"] + "/image/download"
+LOG_DIR = STORAGE_DIR + "/log"
+
+require "pp"
+require "date"
+
+require "rubygems"
+gem "nokogiri"
+require "nokogiri"
+require "open-uri"
+require "imageutils/urllogger.rb"
+
+def anchored_images(url)
+  doc = Nokogiri::HTML(open(url))
+
+  #pp doc
+  #pp doc.methods.sort
+  #pp doc.children
+  #pp doc.xpath("//a").each { |i| pp i }
+  #pp doc.xpath("//a")[10]
+  #pp doc.xpath("//a")[10].attributes["href"].value
+  results = doc.xpath("//a").map{|a|
+    next unless a.attributes.has_key?("href")
+    a.attributes["href"].value
+  }.compact.select{|str| str =~ /(jpg|png|gif)$/}
+  results
+end
+
+#常に log に追記する。
+# log に url が含まれていても、
+# 最後にアクセスしようとした日を更新するため。
+# 古いのを削除とかはしない。
+#
+#log を確認する。
+# url が含まれていれば false を返す。
+# url が含まれていなければ、log に書き込んで取得。
+def storage(url)
+  command = "wget --directory-prefix=#{STORAGE_DIR} #{url}"
+  puts command
+  system command
+end
+
+#anchors = anchored_images('/home/ippei/tmp/getimages/1457652.html')
+#doc = Nokogiri::HTML(open('http://blog.livedoor.jp/wakusoku/archives/1457652.html'))
+ul = UrlLogger.new(LOG_DIR)
+
+ARGV.each do |url|
+  if ul.include?(url)
+    puts "Already downloaded: #{url}"
+  else
+    anchors = anchored_images(url)
+    anchors.each do |img_url|
+      if ul.include?(img_url)
+        puts "Already exist: #{img_url}"
+      else
+        puts "Getting: #{img_url}"
+        storage(img_url)
+        sleep rand(3)
+      end
+      ul.write img_url
+    end
+  end
+  ul.write url
+end

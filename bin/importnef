@@ -1,0 +1,37 @@
+#! /usr/bin/ruby -w
+# last-modified: 2012/05/24 23:40:30.
+
+# Nikon NEF ファイルの撮影日時をファイル名の先頭に付加する。
+
+
+NEF_DIR_PREFIX = "#{ENV["HOME"]}/image/photo/undone"
+
+
+require "pp"
+require "filerenamer/filerenamer.rb"
+require "filerenamer/filerenameroptionparser.rb"
+require "imageutils/nefparser.rb"
+
+op = FileRenamerOptionParser.new
+op.parse!(ARGV)
+
+fr = FileRenamer.new(op.options)
+np = NefParser.new
+fr.execute(ARGV) do |filename|
+  #pp filename
+  new_name = ""
+  begin
+    str = File.open(filename, "r").read(391)
+    date = np.taken_date(str)
+    new_name = (NEF_DIR_PREFIX + date.strftime("/%Y/%m/%d/%H%M%S_") + filename)
+    new_name.sub!(/\.NEF$/, ".nef")
+      #new_name = date.strftime("%Y/%m/%d/") + filename
+      # 秒までだと、連写したときに重複ファイル名になりうる。
+      # 何枚目かだけだと、1日の途中でメモリカードを交換したときに
+      # 重複して順番が滅茶苦茶になる。
+      # このプログラムを使用した後、更に適当にリネームすることを想定。
+  rescue NefParserNotNefError
+    new_name = nil
+  end
+  new_name
+end
